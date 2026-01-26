@@ -1,0 +1,4 @@
+#!/bin/bash
+# encgit launcher for Linux/macOS
+
+java -jar "$(dirname "$0")/../target/encgit-1.0-SNAPSHOT.jar" "$@"
