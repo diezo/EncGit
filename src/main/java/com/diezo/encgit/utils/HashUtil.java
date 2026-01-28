@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 public class HashUtil {
+
     public static String sha256(byte[] data) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");

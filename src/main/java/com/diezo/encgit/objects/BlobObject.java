@@ -1,22 +1,20 @@
 package com.diezo.encgit.objects;
 
 import com.diezo.encgit.core.StageManager;
-import com.diezo.encgit.exceptions.UnknownFlagException;
 import com.diezo.encgit.utils.HashUtil;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Arrays;
 
 public class BlobObject extends GitObject {
 
     public BlobObject(byte[] content) {
-        super("blob", content);
+        super("blob", content, null, null);
     }
 
     public void writeToObjectsDir(Path filePath) {
-        String contentHash = HashUtil.sha256(bodyContent);
+        String contentHash = HashUtil.sha256(blobContent);
 
         // Write new object file
         if (!objectExists(repoRoot, contentHash)) {

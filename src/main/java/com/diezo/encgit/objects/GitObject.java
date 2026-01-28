@@ -2,6 +2,7 @@ package com.diezo.encgit.objects;
 
 import com.diezo.encgit.exceptions.UnknownFlagException;
 import com.diezo.encgit.utils.Compressor;
+import com.diezo.encgit.utils.HashUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Blob;
 import java.util.Arrays;
 
 public abstract class GitObject {
@@ -21,12 +21,21 @@ public abstract class GitObject {
     protected static final Path repoRoot =  Paths.get("").toAbsolutePath();
 
     // Combined content = Header + Body Content
-    public byte[] bodyContent;
+    public byte[] blobContent;
+    public FilesystemDirectory rootDirectory;
+    public String rootTreeHash;
     public String objectType;
 
-    public GitObject(String objectType, byte[] bodyContent) {
+    public GitObject(
+            String objectType,
+            byte[] blobContent,
+            FilesystemDirectory rootDirectory,
+            String rootTreeHash
+    ) {
         this.objectType = objectType;
-        this.bodyContent = bodyContent;
+        this.blobContent = blobContent;
+        this.rootDirectory = rootDirectory;
+        this.rootTreeHash = rootTreeHash;
     }
 
     public static void catObject(String objectHash, int flag) throws UnknownFlagException {
@@ -108,14 +117,16 @@ public abstract class GitObject {
 
     void writeObject(String contentHash) throws IOException {
 
+        // TODO: Fundamental mistake!! Hash is calculated of content and not the entire object!!
+
         // Prepare header
-        String header = objectType + " " + bodyContent.length + "\0";
+        String header = objectType + " " + blobContent.length + "\0";
         byte[] headerBytes = header.getBytes(StandardCharsets.UTF_8);
 
         // Combine header + content bytes
-        byte[] combinedObject = new byte[headerBytes.length + bodyContent.length];
+        byte[] combinedObject = new byte[headerBytes.length + blobContent.length];
         System.arraycopy(headerBytes, 0, combinedObject, 0, headerBytes.length);
-        System.arraycopy(bodyContent, 0, combinedObject, headerBytes.length, bodyContent.length);
+        System.arraycopy(blobContent, 0, combinedObject, headerBytes.length, blobContent.length);
 
         // Compress combined bytes
         byte[] compressedObject = Compressor.zlib_deflate(combinedObject);
@@ -132,6 +143,74 @@ public abstract class GitObject {
 
         // Write combined object bytes
         Files.write(objectFilePath, compressedObject);
+    }
+
+    String writeTreeObject(byte[] treeContent) throws IOException {
+
+        // Prepare header
+        String header = objectType + " " + treeContent.length + "\0";
+        byte[] headerBytes = header.getBytes(StandardCharsets.UTF_8);
+
+        // Combine header + content bytes
+        byte[] combinedObject = new byte[headerBytes.length + treeContent.length];
+        System.arraycopy(headerBytes, 0, combinedObject, 0, headerBytes.length);
+        System.arraycopy(treeContent, 0, combinedObject, headerBytes.length, treeContent.length);
+
+        // Compute object hash
+        String objectHash = HashUtil.sha256(combinedObject);
+
+        // Compress combined bytes
+        byte[] compressedObject = Compressor.zlib_deflate(combinedObject);
+
+        // Resolve target object path
+        Path objectsDir = repoRoot.resolve(".encgit").resolve("objects");
+        Path subObjectDir = objectsDir.resolve(objectHash.substring(0, 2));
+        Path objectFilePath = subObjectDir.resolve(objectHash.substring(2));
+
+        // Create sub-directory
+        if (!Files.exists(subObjectDir) || !Files.isDirectory(subObjectDir)) {
+            Files.createDirectory(subObjectDir);
+        }
+
+        // Write combined object bytes
+        Files.write(objectFilePath, compressedObject);
+
+        // Return object hash
+        return objectHash;
+    }
+
+    String writeCommitObject(byte[] content) throws IOException {
+
+        // Prepare header
+        String header = objectType + " " + content.length + "\0";
+        byte[] headerBytes = header.getBytes(StandardCharsets.UTF_8);
+
+        // Combine header + content bytes
+        byte[] combinedObject = new byte[headerBytes.length + content.length];
+        System.arraycopy(headerBytes, 0, combinedObject, 0, headerBytes.length);
+        System.arraycopy(content, 0, combinedObject, headerBytes.length, content.length);
+
+        // Compute object hash
+        String objectHash = HashUtil.sha256(combinedObject);
+
+        // Compress combined bytes
+        byte[] compressedObject = Compressor.zlib_deflate(combinedObject);
+
+        // Resolve target object path
+        Path objectsDir = repoRoot.resolve(".encgit").resolve("objects");
+        Path subObjectDir = objectsDir.resolve(objectHash.substring(0, 2));
+        Path objectFilePath = subObjectDir.resolve(objectHash.substring(2));
+
+        // Create sub-directory
+        if (!Files.exists(subObjectDir) || !Files.isDirectory(subObjectDir)) {
+            Files.createDirectory(subObjectDir);
+        }
+
+        // Write combined object bytes
+        Files.write(objectFilePath, compressedObject);
+
+        // Return object hash
+        return objectHash;
     }
 
     public static boolean objectExists(Path repoRoot, String hash) {

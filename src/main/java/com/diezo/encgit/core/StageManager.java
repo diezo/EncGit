@@ -18,7 +18,7 @@ import java.util.List;
 public class StageManager {
     private static final Logger log = LoggerFactory.getLogger(StageManager.class);
 
-    public static void stageCommand(List<Path> filePaths, Path repoRoot) {
+    public static void stageCommand(List<Path> filePaths) {
         for (Path path : filePaths) {
 
             // Read file content bytes
@@ -80,7 +80,7 @@ public class StageManager {
         );
     }
 
-    private static JsonNode parseIndexFile(ObjectMapper mapper, Path repoRoot) throws IOException {
+    public static JsonNode parseIndexFile(ObjectMapper mapper, Path repoRoot) throws IOException {
         byte[] data = Files.readAllBytes(repoRoot.resolve(".encgit").resolve("index.json"));
         return mapper.readTree(!(new String(data).isEmpty()) ? data : "[]".getBytes(StandardCharsets.UTF_8));
     }

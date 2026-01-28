@@ -27,10 +27,14 @@ public class InitManager {
 
     private static void resolveSubDirectories(Path gitDir) throws IOException {
         Files.createDirectory(gitDir.resolve("objects"));  // objects
+        Files.createDirectories(gitDir.resolve("refs").resolve("heads"));  // refs/heads
     }
 
     private static void resolveFiles(Path gitDir, Path repoRoot) throws IOException {
         // index.json
         StageManager.initialiseIndex(repoRoot);
+
+        // HEAD
+        Files.writeString(gitDir.resolve("HEAD"), "ref: refs/heads/" + RepositoryConstants.DEFAULT_BRANCH_NAME + "\n");
     }
 }

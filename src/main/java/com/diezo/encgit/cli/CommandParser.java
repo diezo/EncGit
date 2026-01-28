@@ -98,7 +98,7 @@ class AddCmd implements Runnable {
             filePaths.add(repoRoot.resolve(file).normalize());
         }
 
-        StageManager.stageCommand(filePaths, repoRoot);
+        StageManager.stageCommand(filePaths);
     }
 }
 
