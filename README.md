@@ -25,7 +25,7 @@ An encrypted version control sytem written in Java
 - Object Integrity Checks
 - Configuration Support
 
-## ⚒️ Commands
+## ⚒️ CLI Commands
 Here is the list of CLI commands supported till now:
 
 <details>
@@ -34,13 +34,21 @@ Here is the list of CLI commands supported till now:
 
 Initializes directory as an empty Encgit repository
 
+```
+encgit init
+```
+
 </details>
 
 <details>
 
 <summary><b>encgit add</b></summary>
 
-Add files to staging area
+Adds files to staging area
+
+```
+encgit add <file1> <file2> ...
+```
 
 </details>
 
@@ -49,5 +57,9 @@ Add files to staging area
 <summary><b>encgit commit</b></summary>
 
 Commits a snapshot of staging area to memory
+
+```
+encgit commit -m <message>
+```
 
 </details>
