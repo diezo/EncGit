@@ -13,12 +13,10 @@ An encrypted version control sytem written in Java
 > This project is under active experimentation, and not yet suitable for production use.
 
 ## 📦 Features
-- SHA-256 Object Hashing
-- `zlib deflate` Object Compression
-- Staging Area
-- Commits
-
-## 🚧 Upcoming Features
+- ✅ SHA-256 Object Hashing
+- ✅ `zlib deflate` Object Compression
+- ✅ Staging Area
+- ✅ Commits
 - AES Encrypted Blob Storage
 - Branching
 - Diff Engine
