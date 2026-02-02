@@ -9,6 +9,9 @@
 
 An encrypted version control sytem written in Java
 
+> [!NOTE]
+> This project is under active experimentation, and not yet suitable for production use.
+
 ## 📦 Features
 - SHA-256 Object Hashing
 - `zlib deflate` Object Compression
