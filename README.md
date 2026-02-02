@@ -9,7 +9,22 @@
 
 An encrypted version control sytem written in Java
 
-## Commands
+## 📦 Features
+- SHA-256 Object Hashing
+- `zlib deflate` Object Compression
+- Staging Area
+- Commits
+
+## 🚧 Upcoming Features
+- AES Encrypted Blob Storage
+- Branching
+- Diff Engine
+- Garbage Collector (Explicit + Implicit)
+- Unit Tests Integration
+- Object Integrity Checks
+- Configuration Support
+
+## ⚒️ Commands
 Here is the list of CLI commands supported till now:
 
 <details>
