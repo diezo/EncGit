@@ -25,8 +25,8 @@ An encrypted version control sytem written in Java
 - Object Integrity Checks
 - Configuration Support
 
-## ⚒️ CLI Commands
-Here is the list of CLI commands supported till now:
+## ⚒️ Porcelain Commands (High-level)
+Here's the list of supported user-friendly commands:
 
 <details>
 
@@ -61,5 +61,24 @@ Commits a snapshot of staging area to memory
 ```
 encgit commit -m <message>
 ```
+
+</details>
+
+## ⚒️ Plumbing Commands (Low-level)
+Here's the list of supported internal commands:
+
+<details>
+
+<summary><b>encgit cat-file</b></summary>
+
+Pretty prints details of specified object file
+
+```
+encgit cat-file <flag> <object-hash>
+```
+
+Flags:
+- ```-t``` prints object type
+- ```-p``` prints object content
 
 </details>
