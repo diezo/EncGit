@@ -7,6 +7,7 @@ import com.sun.source.tree.Tree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.SecretKey;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -23,6 +24,11 @@ public class CommitManager {
         // TODO: Detect nothing to commit
         // TODO: Add author, committer, timestamp to commit object
 
+        Path encgitDir = repoRoot.resolve(".encgit");
+
+        // Attempt to load secure key
+        SecretKey secureKey = EncryptionManager.loadSecureKey(encgitDir);
+
         try {
             JsonNode indexJson = StageManager.parseIndexFile(new ObjectMapper(), repoRoot);
 
@@ -32,10 +38,10 @@ public class CommitManager {
             // Build Tree Objects
             try {
                 TreeObject treeObject = new TreeObject(rootDirectory);
-                String rootTreeHash = treeObject.writeToObjectsDir();
+                String rootTreeHash = treeObject.writeToObjectsDir(secureKey);
 
                 CommitObject commitObject = new CommitObject(rootTreeHash);
-                String commitHash = commitObject.writeToObjectsDir(message);
+                String commitHash = commitObject.writeToObjectsDir(message, secureKey);
 
                 // Move branch pointer
                 BranchManager.moveActiveBranchPointer(commitHash);

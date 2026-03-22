@@ -1,11 +1,13 @@
 package com.diezo.encgit.objects;
 
+import com.diezo.encgit.core.EncryptionManager;
 import com.diezo.encgit.exceptions.UnknownFlagException;
 import com.diezo.encgit.utils.Compressor;
 import com.diezo.encgit.utils.HashUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -38,7 +40,7 @@ public abstract class GitObject {
         this.rootTreeHash = rootTreeHash;
     }
 
-    public static void catObject(String objectHash, int flag) throws UnknownFlagException {
+    public static void catObject(String objectHash, int flag, SecretKey secureKey) throws UnknownFlagException {
 
         // Corresponding object file path
         Path objectFilePath = repoRoot
@@ -56,11 +58,12 @@ public abstract class GitObject {
         try {
             byte[] data = Files.readAllBytes(objectFilePath);
             byte[] inflated = Compressor.zlib_inflate(data);
+            byte[] decrypted = EncryptionManager.decrypt(inflated, secureKey);
 
             int headerEnd = -1;
 
-            for (int i = 0; i < inflated.length; i++) {
-                if (inflated[i] == (byte)'\0') {
+            for (int i = 0; i < decrypted.length; i++) {
+                if (decrypted[i] == (byte)'\0') {
                     headerEnd = i;
                     break;
                 }
@@ -72,7 +75,7 @@ public abstract class GitObject {
                 return;
             }
 
-            String header = new String(inflated, 0, headerEnd, StandardCharsets.UTF_8);
+            String header = new String(decrypted, 0, headerEnd, StandardCharsets.UTF_8);
 
             // Invalid header format
             int spaceIndex = header.indexOf(" ");
@@ -86,7 +89,7 @@ public abstract class GitObject {
             long size = Long.parseLong(header.substring(spaceIndex + 1));
 
             int contentStart = headerEnd + 1;
-            int contentLength = inflated.length - contentStart;
+            int contentLength = decrypted.length - contentStart;
 
             // Content length size mismatch between actual length and length declared in header
             if (contentLength != size) {
@@ -95,7 +98,7 @@ public abstract class GitObject {
             }
 
             // Parse content
-            byte[] content = Arrays.copyOfRange(inflated, contentStart, inflated.length);
+            byte[] content = Arrays.copyOfRange(decrypted, contentStart, decrypted.length);
 
             if (flag == CAT_TYPE) {  // Print object type
                 System.out.println(objectType);
@@ -115,7 +118,7 @@ public abstract class GitObject {
         }
     }
 
-    void writeObject(String contentHash) throws IOException {
+    void writeObject(String contentHash, SecretKey secureKey) throws IOException {
 
         // TODO: Fundamental mistake!! Hash is calculated of content and not the entire object!!
 
@@ -128,8 +131,11 @@ public abstract class GitObject {
         System.arraycopy(headerBytes, 0, combinedObject, 0, headerBytes.length);
         System.arraycopy(blobContent, 0, combinedObject, headerBytes.length, blobContent.length);
 
-        // Compress combined bytes
-        byte[] compressedObject = Compressor.zlib_deflate(combinedObject);
+        // Encrypt combined bytes
+        byte[] encryptedBytes = EncryptionManager.encrypt(combinedObject, secureKey);
+
+        // Compress encrypted bytes
+        byte[] compressedObject = Compressor.zlib_deflate(encryptedBytes);
 
         // Resolve target object path
         Path objectsDir = repoRoot.resolve(".encgit").resolve("objects");
@@ -145,7 +151,7 @@ public abstract class GitObject {
         Files.write(objectFilePath, compressedObject);
     }
 
-    String writeTreeObject(byte[] treeContent) throws IOException {
+    String writeTreeObject(byte[] treeContent, SecretKey secureKey) throws IOException {
 
         // Prepare header
         String header = objectType + " " + treeContent.length + "\0";
@@ -156,11 +162,14 @@ public abstract class GitObject {
         System.arraycopy(headerBytes, 0, combinedObject, 0, headerBytes.length);
         System.arraycopy(treeContent, 0, combinedObject, headerBytes.length, treeContent.length);
 
-        // Compute object hash
-        String objectHash = HashUtil.sha256(combinedObject);
+        // Encrypt combined bytes
+        byte[] encryptedBytes = EncryptionManager.encrypt(combinedObject, secureKey);
 
-        // Compress combined bytes
-        byte[] compressedObject = Compressor.zlib_deflate(combinedObject);
+        // Compute object hash
+        String objectHash = HashUtil.sha256(encryptedBytes);
+
+        // Compress encrypted bytes
+        byte[] compressedObject = Compressor.zlib_deflate(encryptedBytes);
 
         // Resolve target object path
         Path objectsDir = repoRoot.resolve(".encgit").resolve("objects");

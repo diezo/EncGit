@@ -3,6 +3,7 @@ package com.diezo.encgit.objects;
 import com.diezo.encgit.core.StageManager;
 import com.diezo.encgit.utils.HashUtil;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -13,12 +14,12 @@ public class BlobObject extends GitObject {
         super("blob", content, null, null);
     }
 
-    public void writeToObjectsDir(Path filePath) {
+    public void writeToObjectsDir(Path filePath, SecretKey secureKey) {
         String contentHash = HashUtil.sha256(blobContent);
 
         // Write new object file
         if (!objectExists(repoRoot, contentHash)) {
-            try { writeObject(contentHash); }
+            try { writeObject(contentHash, secureKey); }
             catch (IOException e) {
                 System.out.println("Error: Could not write object " + contentHash);
                 log.error(e.toString());

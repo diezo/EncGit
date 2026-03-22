@@ -3,6 +3,7 @@ package com.diezo.encgit.objects;
 import com.diezo.encgit.core.StageManager;
 import com.diezo.encgit.utils.HashUtil;
 
+import javax.crypto.SecretKey;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -15,11 +16,11 @@ public class TreeObject extends GitObject {
         super("tree", null, rootDirectory, null);
     }
 
-    public String writeToObjectsDir() throws IOException {
-        return recursiveCreateTree(rootDirectory);
+    public String writeToObjectsDir(SecretKey secureKey) throws IOException {
+        return recursiveCreateTree(rootDirectory, secureKey);
     }
 
-    private String recursiveCreateTree(FilesystemDirectory rootDirectory) throws IOException {
+    private String recursiveCreateTree(FilesystemDirectory rootDirectory, SecretKey secureKey) throws IOException {
         ByteArrayOutputStream treeContent = new ByteArrayOutputStream();
 
         // Iterate entries
@@ -35,11 +36,11 @@ public class TreeObject extends GitObject {
 
                 treeContent.write(("040000 " + directory.title).getBytes());
                 treeContent.write(0);
-                treeContent.write(recursiveCreateTree(directory).getBytes(StandardCharsets.UTF_8));
+                treeContent.write(recursiveCreateTree(directory, secureKey).getBytes(StandardCharsets.UTF_8));
             }
         }
 
-        return writeTreeObject(treeContent.toByteArray());
+        return writeTreeObject(treeContent.toByteArray(), secureKey);
     }
 
     public static void catTreeObject(byte[] content) {

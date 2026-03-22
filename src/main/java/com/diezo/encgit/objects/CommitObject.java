@@ -2,6 +2,7 @@ package com.diezo.encgit.objects;
 
 import com.diezo.encgit.core.BranchManager;
 
+import javax.crypto.SecretKey;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -15,7 +16,7 @@ public class CommitObject extends GitObject {
         super("commit", null, null, rootTreeHash);
     }
 
-    public String writeToObjectsDir(String commitMessage) throws IOException {
+    public String writeToObjectsDir(String commitMessage, SecretKey secureKey) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         out.write(("tree " + rootTreeHash).getBytes(StandardCharsets.UTF_8));
@@ -25,7 +26,7 @@ public class CommitObject extends GitObject {
         out.write("message ".getBytes(StandardCharsets.UTF_8));
         out.write(commitMessage.getBytes(StandardCharsets.UTF_8));
 
-        return writeTreeObject(out.toByteArray());
+        return writeTreeObject(out.toByteArray(), secureKey);
     }
 
     public static void catCommitObject(byte[] content) {

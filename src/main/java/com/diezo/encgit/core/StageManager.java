@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -18,7 +19,12 @@ import java.util.List;
 public class StageManager {
     private static final Logger log = LoggerFactory.getLogger(StageManager.class);
 
-    public static void stageCommand(List<Path> filePaths) {
+    public static void stageCommand(List<Path> filePaths, Path repoRoot) {
+        Path encgitDir = repoRoot.resolve(".encgit");
+
+        // Attempt to load secure key
+        SecretKey secureKey = EncryptionManager.loadSecureKey(encgitDir);
+
         for (Path path : filePaths) {
 
             // Read file content bytes
@@ -32,7 +38,7 @@ public class StageManager {
             }
 
             BlobObject blobObject = new BlobObject(fileContent);
-            blobObject.writeToObjectsDir(path);
+            blobObject.writeToObjectsDir(path, secureKey);
         }
     }
 

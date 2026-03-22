@@ -1,7 +1,9 @@
 package com.diezo.encgit.core;
 
+import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -58,6 +60,28 @@ public class EncryptionManager {
         return null;
     }
 
+    public static SecretKeySpec loadSecureKey(Path encgitDir) {
+        try {
+            Path refKeyPath = encgitDir.resolve("ref.key");
+            String keyPath = Files.readString(refKeyPath).trim();
+
+            if (!keyPath.startsWith("ref: ")) throw new IOException();
+
+            keyPath =  keyPath.substring("ref: ".length());
+
+            String encodedKey = Files.readString(Paths.get(keyPath)).trim();
+            byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
+
+            return new SecretKeySpec(decodedKey, "AES");
+
+        } catch (IOException e) {
+            System.out.println("Unable to load secure key!");
+            System.exit(-1);
+        }
+
+        return null;
+    }
+
     private static String generateRandomFilename() {
         byte[] bytes = new byte[16];
         new SecureRandom().nextBytes(bytes);
@@ -69,5 +93,33 @@ public class EncryptionManager {
         }
 
         return hex.toString();
+    }
+
+    public static byte[] encrypt(byte[] data, SecretKey key) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            return cipher.doFinal(data);
+
+        } catch (Exception e) {
+            System.out.println("Unable to encrypt data!");
+            System.exit(-1);
+        }
+
+        return null;
+    }
+
+    public static byte[] decrypt(byte[] data, SecretKey key) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            return cipher.doFinal(data);
+
+        } catch (Exception e) {
+            System.out.println("Unable to encrypt data!");
+            System.exit(-1);
+        }
+
+        return null;
     }
 }

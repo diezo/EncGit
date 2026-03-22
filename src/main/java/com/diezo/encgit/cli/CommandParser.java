@@ -1,11 +1,13 @@
 package com.diezo.encgit.cli;
 
+import com.diezo.encgit.core.EncryptionManager;
 import com.diezo.encgit.core.StageManager;
 import com.diezo.encgit.core.CommitManager;
 import com.diezo.encgit.core.InitManager;
 import com.diezo.encgit.objects.GitObject;
 import picocli.CommandLine;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -98,7 +100,7 @@ class AddCmd implements Runnable {
             filePaths.add(repoRoot.resolve(file).normalize());
         }
 
-        StageManager.stageCommand(filePaths);
+        StageManager.stageCommand(filePaths, repoRoot);
     }
 }
 
@@ -154,10 +156,17 @@ class CatFileCmd implements Runnable {
     @Override
     public void run() {
         if (!CommandParser.isEncgitRepo()) return;  // Requires encgit repo
+
+        Path repoRoot = Paths.get("").toAbsolutePath();
+        Path encgitDir = repoRoot.resolve(".encgit");
+
+        // Attempt to load secure key
+        SecretKey secureKey = EncryptionManager.loadSecureKey(encgitDir);
         
         GitObject.catObject(
                 required.printBody != null ? required.printBody : required.printType,
-                required.printBody != null ? GitObject.CAT_CONTENT : GitObject.CAT_TYPE
+                required.printBody != null ? GitObject.CAT_CONTENT : GitObject.CAT_TYPE,
+                secureKey
         );
     }
 }
