@@ -17,13 +17,26 @@ An encrypted version control sytem written in Java
 - ✅ `zlib deflate` Object Compression
 - ✅ Staging Area
 - ✅ Commits
-- AES Encrypted Blob Storage
+- ✅ AES Encrypted Blob Storage
 - Branching
 - Diff Engine
 - Garbage Collector (Explicit + Implicit)
 - Unit Tests Integration
 - Object Integrity Checks
 - Configuration Support
+
+## 🔑 AES-256 Object Encryption
+EncGit encrypts all object data at rest using AES-256.
+
+During `encgit init`, a cryptographically secure 256-bit key is generated and stored in the user's home directory (outside the repository). The repository maintains only a reference to this key via `.encgit/ref.key`.
+
+All subsequent operations use this key to perform transparent encryption and decryption of object data.
+
+Key reference format (`.encgit/ref.key`):
+
+```
+ref: C:\Users\jake\.encgit-keys\9e0bd17bfb0c5e53ed19acee5969486c.key
+```
 
 ## ⚒️ Porcelain Commands (High-level)
 Here's the list of supported user-friendly commands:
