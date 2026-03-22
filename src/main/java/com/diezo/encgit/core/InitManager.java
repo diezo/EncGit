@@ -11,6 +11,9 @@ public class InitManager {
     public static boolean init(Path repoRoot) throws IOException {
         Path encgitDir = repoRoot.resolve(".encgit");
 
+        // Attempt to generate secure key
+        String keyRef = EncryptionManager.generateKey();
+
         // Create .encgit directory
         try {
             Files.createDirectory(encgitDir);
@@ -20,7 +23,7 @@ public class InitManager {
         }
 
         resolveSubDirectories(encgitDir);
-        resolveFiles(encgitDir, repoRoot);
+        resolveFiles(encgitDir, repoRoot, keyRef);
 
         return true;
     }
@@ -30,9 +33,12 @@ public class InitManager {
         Files.createDirectories(gitDir.resolve("refs").resolve("heads"));  // refs/heads
     }
 
-    private static void resolveFiles(Path gitDir, Path repoRoot) throws IOException {
+    private static void resolveFiles(Path gitDir, Path repoRoot, String keyRef) throws IOException {
         // index.json
         StageManager.initialiseIndex(repoRoot);
+
+        // ref.key
+        Files.writeString(gitDir.resolve("ref.key"), keyRef + "\n");
 
         // HEAD
         Files.writeString(gitDir.resolve("HEAD"), "ref: refs/heads/" + RepositoryConstants.DEFAULT_BRANCH_NAME + "\n");
