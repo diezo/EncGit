@@ -7,7 +7,7 @@
 [![LinkedIn](https://custom-icon-badges.demolab.com/badge/LinkedIn-0A66C2?logo=linkedin-white&logoColor=fff)](https://linkedin.com/in/deepaksonii)
 [![GitHub](https://img.shields.io/badge/GitHub-%23121011.svg?logo=github&logoColor=white)](https://github.com/diezo)
 
-An encrypted version control sytem written in Java
+An encrypted version control system written in Java
 
 > [!NOTE]
 > This project is under active experimentation, and not yet suitable for production use.
@@ -17,7 +17,7 @@ An encrypted version control sytem written in Java
 - ✅ `zlib deflate` Object Compression
 - ✅ Staging Area
 - ✅ Commits
-- ✅ AES Encrypted Blob Storage
+- ✅ AES-256 Encrypted Blob Storage
 - Branching
 - Diff Engine
 - Garbage Collector (Explicit + Implicit)
@@ -38,6 +38,9 @@ Key reference format (`.encgit/ref.key`):
 ref: C:\Users\jake\.encgit-keys\9e0bd17bfb0c5e53ed19acee5969486c.key
 ```
 
+> [!WARNING]
+> Loss of the key file results in permanent data loss, as encrypted objects cannot be recovered without it.
+
 ## ⚒️ Porcelain Commands (High-level)
 Here's the list of supported user-friendly commands:
 
@@ -45,7 +48,7 @@ Here's the list of supported user-friendly commands:
 
 <summary><b>encgit init</b></summary>
 
-Initializes directory as an empty Encgit repository
+Initializes directory as an empty EncGit repository
 
 ```
 encgit init
@@ -57,7 +60,7 @@ encgit init
 
 <summary><b>encgit add</b></summary>
 
-Adds files to staging area
+Adds files to the staging area
 
 ```
 encgit add <file1> <file2> ...
@@ -69,7 +72,7 @@ encgit add <file1> <file2> ...
 
 <summary><b>encgit commit</b></summary>
 
-Commits a snapshot of staging area to memory
+Creates a commit from the current staging area
 
 ```
 encgit commit -m <message>
@@ -84,7 +87,7 @@ Here's the list of supported internal commands:
 
 <summary><b>encgit cat-file</b></summary>
 
-Pretty prints details of specified object file
+Pretty-prints details of the specified object
 
 ```
 encgit cat-file <flag> <object-hash>
