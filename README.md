@@ -1,2 +1,84 @@
 ## EncGit - An Encrypted VCS Written in Java
-More about this project will soon be updated here
+
+[![wakatime](https://wakatime.com/badge/user/018dbb56-f37d-40a3-96e0-e01ce5e8b6ac/project/600325b2-a3e1-4230-b831-f182327303ed.svg)](https://wakatime.com/badge/user/018dbb56-f37d-40a3-96e0-e01ce5e8b6ac/project/600325b2-a3e1-4230-b831-f182327303ed)
+
+![](https://img.shields.io/badge/Java-ED8B00?style=flat&logo=openjdk&logoColor=white)
+
+[![LinkedIn](https://custom-icon-badges.demolab.com/badge/LinkedIn-0A66C2?logo=linkedin-white&logoColor=fff)](https://linkedin.com/in/deepaksonii)
+[![GitHub](https://img.shields.io/badge/GitHub-%23121011.svg?logo=github&logoColor=white)](https://github.com/diezo)
+
+An encrypted version control sytem written in Java
+
+> [!NOTE]
+> This project is under active experimentation, and not yet suitable for production use.
+
+## 📦 Features
+- ✅ SHA-256 Object Hashing
+- ✅ `zlib deflate` Object Compression
+- ✅ Staging Area
+- ✅ Commits
+- AES Encrypted Blob Storage
+- Branching
+- Diff Engine
+- Garbage Collector (Explicit + Implicit)
+- Unit Tests Integration
+- Object Integrity Checks
+- Configuration Support
+
+## ⚒️ Porcelain Commands (High-level)
+Here's the list of supported user-friendly commands:
+
+<details>
+
+<summary><b>encgit init</b></summary>
+
+Initializes directory as an empty Encgit repository
+
+```
+encgit init
+```
+
+</details>
+
+<details>
+
+<summary><b>encgit add</b></summary>
+
+Adds files to staging area
+
+```
+encgit add <file1> <file2> ...
+```
+
+</details>
+
+<details>
+
+<summary><b>encgit commit</b></summary>
+
+Commits a snapshot of staging area to memory
+
+```
+encgit commit -m <message>
+```
+
+</details>
+
+## ⚒️ Plumbing Commands (Low-level)
+Here's the list of supported internal commands:
+
+<details>
+
+<summary><b>encgit cat-file</b></summary>
+
+Pretty prints details of specified object file
+
+```
+encgit cat-file <flag> <object-hash>
+```
+
+Flags:
+- ```-t``` prints object type
+- ```-p``` prints object content
+
+</details>
